@@ -21,7 +21,6 @@ body {
   min-height: 100vh;
   background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 45%, #fdf2f8 100%);
   color: var(--page-ink);
-  overflow-x: hidden;
 }
 
 ::selection {
@@ -42,6 +41,7 @@ a {
 .prose {
   overflow-wrap: break-word;
   word-break: break-word;
+  max-width: 100%;
 }
 
 .prose code {
@@ -59,6 +59,16 @@ a {
   padding: 1.25rem;
   overflow-x: auto;
   max-width: 100%;
+}
+
+.prose img,
+.prose table {
+  max-width: 100%;
+}
+
+.prose table {
+  display: block;
+  overflow-x: auto;
 }
 
 .glass {

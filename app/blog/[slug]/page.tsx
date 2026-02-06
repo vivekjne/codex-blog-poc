@@ -97,8 +97,8 @@ export default async function BlogPost({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {post.toc.length > 0 && <Toc items={post.toc} variant="mobile" />}
-      <div className="grid gap-12 md:grid-cols-[1.6fr,0.7fr]">
-        <article className="min-w-0 space-y-6">
+      <div className="flex flex-col gap-12 md:flex-row">
+        <article className="min-w-0 flex-1 space-y-6">
           <div className="space-y-4">
             <Link
               href="/blog"
@@ -115,11 +115,28 @@ export default async function BlogPost({
           </div>
           <div className="prose prose-slate max-w-none">{content}</div>
         </article>
-        <aside className="hidden md:block md:sticky md:top-24 md:self-start">
-          {post.toc.length > 0 && <Toc items={post.toc} variant="desktop" />}
+        <aside className="hidden md:block md:w-[20rem] md:shrink-0 md:self-stretch">
+          <div className="md:sticky md:top-24 md:self-start space-y-8">
+            {post.toc.length > 0 && <Toc items={post.toc} variant="desktop" />}
+            <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-soft">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
+                Tags
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {post.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </aside>
       </div>
-      <div className="mt-10">
+      <div className="mt-10 md:hidden">
         <div className="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-soft">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">
             Tags
