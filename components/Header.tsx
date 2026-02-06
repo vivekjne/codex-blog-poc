@@ -5,12 +5,12 @@ import { useState } from "react";
 import { site } from "@/content/site";
 
 const navItems = [
-  { label: "About", href: "#about" },
-  { label: "Skills", href: "#skills" },
-  { label: "Projects", href: "#projects" },
-  { label: "Experience", href: "#experience" },
+  { label: "About", href: "/#about" },
+  { label: "Skills", href: "/#skills" },
+  { label: "Projects", href: "/#projects" },
+  { label: "Experience", href: "/#experience" },
   { label: "Blog", href: "/blog" },
-  { label: "Contact", href: "#contact" }
+  { label: "Contact", href: "/#contact" }
 ];
 
 export function Header() {
