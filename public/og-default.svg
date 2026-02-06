@@ -1,0 +1,18 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0ea5e9"/>
+      <stop offset="0.5" stop-color="#f97316"/>
+      <stop offset="1" stop-color="#fb7185"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" rx="48" fill="url(#bg)"/>
+  <rect x="80" y="80" width="1040" height="470" rx="36" fill="rgba(15, 23, 42, 0.85)"/>
+  <text x="140" y="260" fill="white" font-family="'DM Serif Display', serif" font-size="64">Avery Collins</text>
+  <text x="140" y="330" fill="#e2e8f0" font-family="'Space Grotesk', sans-serif" font-size="32">
+    Senior Frontend Engineer · Next.js · React · TypeScript
+  </text>
+  <text x="140" y="400" fill="#cbd5f5" font-family="'Space Grotesk', sans-serif" font-size="24">
+    Portfolio + Blog
+  </text>
+</svg>

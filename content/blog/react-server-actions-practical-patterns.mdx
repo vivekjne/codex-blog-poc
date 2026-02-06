@@ -1,0 +1,43 @@
+---
+title: "React Server Actions: Practical Patterns for Real Apps"
+description: "A pragmatic look at server actions, form flows, and how to keep UX snappy with progressive enhancement."
+date: "2026-02-03"
+tags: ["React", "Server Actions", "Next.js", "Forms"]
+readingTime: "7 min read"
+draft: false
+---
+
+React Server Actions unlock a new mental model: push logic closer to the server while keeping the client experience buttery smooth. The trick is to treat them as **one part** of a well-designed flow, not the whole flow.
+
+## Start with the happy path
+
+Use server actions for the core mutation. Pair that with optimistic UI so the interface feels instant even when latency spikes.
+
+## Layer in progressive enhancement
+
+Keep forms functional without JavaScript. Then, enhance them with inline loading states and field-level feedback.
+
+## Move validation to the edges
+
+Run validation in three places:
+
+- On the client for instant feedback
+- Inside the action for canonical validation
+- In the data layer for invariants
+
+## A reference architecture
+
+I like pairing actions with a thin domain layer that owns validation, and a UI layer that owns user experience. This ensures the action remains composable and testable.
+
+```tsx
+'use server'
+
+export async function updateProfile(input: ProfileInput) {
+  const data = profileSchema.parse(input)
+  return updateProfileRecord(data)
+}
+```
+
+## What to watch next
+
+Server Actions are evolving quickly. Watch for better streaming patterns and compiler-driven optimizations in the React ecosystem.

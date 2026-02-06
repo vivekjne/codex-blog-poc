@@ -1,0 +1,23 @@
+---
+title: "React Compiler and the Future of Memoization"
+description: "What the React Compiler changes about performance practices and how to prepare your codebase."
+date: "2026-01-29"
+tags: ["React", "Performance", "Compiler"]
+readingTime: "5 min read"
+draft: false
+---
+
+The React Compiler aims to eliminate manual memoization by understanding component semantics. That means less `useMemo` fatigue and fewer accidental performance regressions.
+
+## What changes for teams
+
+- Components can stay simple without losing performance.
+- You can spend more time on user-facing improvements instead of performance micromanagement.
+
+## How to prepare
+
+Focus on idiomatic React patterns. Avoid mutating state, rely on pure components, and keep side effects predictable.
+
+## The new mental model
+
+Performance becomes a tooling problem rather than a human burden. That’s a win, but it also means your linting and CI should enforce the patterns the compiler expects.

@@ -1,0 +1,28 @@
+---
+title: "Next.js Partial Prerendering: What It Enables"
+description: "How partial prerendering changes the tradeoffs between interactivity and performance."
+date: "2026-02-02"
+tags: ["Next.js", "Performance", "Rendering"]
+readingTime: "6 min read"
+draft: false
+---
+
+Partial prerendering gives you a new default: ship a fast shell, then stream in the expensive pieces. It’s ideal for dashboards, product catalogs, and any page with a stable frame plus dynamic data.
+
+## Why it matters
+
+- You avoid blocking the entire page on slow data.
+- You keep the core layout stable for user perception.
+- You can prioritize data that actually needs freshness.
+
+## Practical use cases
+
+Think of a pricing page with a static hero and a dynamically loaded comparison table, or a marketing site with live stats that update after the initial paint.
+
+## Adopt it safely
+
+Start by identifying slow sections and wrap them in streaming boundaries. Measure the impact with real user metrics, not just lab scores.
+
+## The tradeoffs
+
+Partial prerendering is powerful, but you’ll want to be explicit about which fragments can lag. Not everything should be streamed.

@@ -1,0 +1,337 @@
+---
+title: "Building Agent Skills for a React Frontend Codebase (SKILL.md Playbook)"
+description: "How I turned tribal knowledge into repeatable, AI-friendly workflows for a large React/TypeScript repo—with real templates, guardrails, and adoption tips."
+date: "2026-02-04"
+tags: ["React", "TypeScript", "AI", "Documentation", "Workflow"]
+readingTime: "14 min read"
+draft: false
+---
+
+I’m a senior frontend developer who loves good tooling and hates re-answering the same questions in Slack. When AI assistants started showing up in our day-to-day, I realized the biggest blocker wasn’t “AI quality” as much as **codebase context**.
+
+We had years of tribal knowledge:
+
+- “Use the `Button` from the design system, not the old one.”
+- “Don’t fetch in client components unless you *really* need to.”
+- “The app shell must stay < 120KB gzipped.”
+- “If you touch the router, update these three tests.”
+
+Humans can slowly absorb that over weeks. An agent can’t. And new hires definitely shouldn’t have to.
+
+So I started writing “agent skills” for our frontend repo: **small, focused playbooks** that teach an assistant (and new humans) how to do the work *the way our codebase expects*.
+
+This post is the approach I used, what worked, what backfired, and the templates I wish I had on day one.
+
+## What Is a Skill (In Practice)?
+
+In my definition, an agent skill is a single markdown file that answers:
+
+- What is the *task*?
+- Where in the repo does the *task happen*?
+- What are the *rules and constraints*?
+- What commands validate it?
+- What does “done” look like?
+
+That’s it. No philosophy essays. No “just be careful” vibes. Concrete, reproducible steps.
+
+If you already have something like `CONTRIBUTING.md`, a skill is different. It’s **narrower**, more procedural, and designed to be “copied into action”.
+
+## Why React Codebases Need This More Than Most
+
+React repos accumulate complexity in places that are easy to miss:
+
+- Rendering model differences. Server components vs client components, async boundaries, caching.
+- Architectural constraints. Where state lives, what’s allowed in shared packages.
+- CSS and UI patterns. Tokens, responsive rules, a11y standards, theming.
+- Performance budgets. Bundle size, hydration cost, expensive re-renders.
+- Testing strategy. Unit vs integration, Storybook/Chromatic, Playwright.
+
+An assistant can be brilliant and still produce changes that violate “how things are done here.” Skills are how you teach the assistant your team’s constraints without repeating yourself.
+
+## The Format That Worked for Us
+
+I tried a bunch of variations, but this structure stuck because it’s skimmable and operational:
+
+1. Overview
+1. Scope (in-scope and out-of-scope)
+1. Repo map (where to look)
+1. Steps (the actual procedure)
+1. Guardrails (hard rules)
+1. Verification (commands + expected output)
+1. PR checklist (what reviewers expect)
+1. Examples (the 2–3 highest leverage examples)
+
+## A Full SKILL.md Template (Copy/Paste)
+
+Here’s the template I use. I keep it short enough that people don’t resent updating it.
+
+```md
+# Skill: <Short Name>
+
+## Goal
+Describe the user-visible outcome in 1–2 sentences.
+
+## In Scope
+- ...
+
+## Out of Scope
+- ...
+
+## Repo Map
+- `src/app/`:
+- `src/components/`:
+- `src/lib/`:
+- `src/styles/`:
+- `src/test/`:
+
+## Workflow
+1. Identify the entry point(s)
+1. Make the smallest safe change
+1. Add/adjust tests
+1. Validate locally
+
+## Guardrails
+- Do not ...
+- Always ...
+- Prefer ...
+
+## Verification
+- `npm test`:
+- `npm run lint`:
+- `npm run build`:
+
+## PR Checklist
+- [ ] Screenshots/recording for UI changes
+- [ ] A11y check: keyboard nav, focus ring, contrast
+- [ ] Perf check if applicable (bundle or rerender hotspots)
+
+## Examples
+Add 2–3 examples with file paths and short notes.
+```
+
+In our repo, we keep one “index” file (think `AGENTS.md`) that links to each skill. That index is the jump-off point for both humans and agents.
+
+## Skill 1: “Add a Component the Right Way”
+
+This is the skill we got the most value from, because it’s the most common workflow and the one with the most style/architecture footguns.
+
+### Repo rules I explicitly wrote down
+
+- Prefer composition over extending base components with new boolean props.
+- Use design tokens and existing primitives.
+- Never hardcode colors outside tokens.
+- Prefer `data-*` attributes for state styling instead of brittle class name chaining.
+- New components must have keyboard access and visible focus.
+
+### What the skill tells an agent to do
+
+1. Find the closest existing component and follow its pattern.
+1. Decide whether this is a new primitive or a composite component.
+1. Add Storybook story and at least one interaction test.
+1. Validate accessibility with keyboard-only navigation.
+
+### Example snippet from our real skill
+
+```md
+## Guardrails
+- If the component is reusable across products, it goes in `src/components/ui/`.
+- If it is page-specific, keep it under the route folder.
+- Use `forwardRef` for inputs/buttons that might need focus control.
+- Export types, do not export internal helpers.
+
+## Verification
+- `npm run storybook` and confirm:
+- `npm test -- <component>` for interaction tests
+```
+
+The measurable result was that “quick component” PRs stopped causing “design system drift.”
+
+## Skill 2: “Fix a Performance Regression”
+
+This was my favorite one to write, because it forced me to encode my mental model of performance work.
+
+### What I used to do manually
+
+When a page got slower, I’d do a predictable loop:
+
+1. Reproduce the issue with a stable data set.
+1. Identify whether the cost is: render, JS bundle, network, or layout shift.
+1. Run React DevTools Profiler.
+1. Inspect for “death by props churn” and expensive derived state.
+1. Confirm whether memoization is actually helping.
+
+### What the skill taught the agent
+
+- Start with measurements, not guesses.
+- Reduce rerenders by stabilizing references and lifting state.
+- Prefer moving expensive work to the server where appropriate.
+- Avoid cargo-cult `useMemo` and `useCallback`.
+
+### The skill section that prevented repeated mistakes
+
+```md
+## Guardrails
+- Do not add memoization unless profiler shows it improves commit time.
+- Avoid converting everything to a client component to “fix it quickly”.
+- If adding a client boundary, justify it in the PR description.
+
+## Verification
+- Capture a before/after profiler screenshot.
+- Confirm no new hydration warnings.
+```
+
+Once this existed, performance fixes stopped being “mystical.” They became repeatable.
+
+## Skill 3: “Add a New Route Without Breaking Everything”
+
+Routing changes are high-risk because they impact:
+
+- Navigation
+- Breadcrumbs
+- SEO metadata
+- Analytics tracking
+- E2E tests
+
+So the skill is basically a checklist that makes the hidden dependencies obvious.
+
+### Key guardrails
+
+- Always add metadata. Title, description, OpenGraph at minimum.
+- Ensure route has a stable layout and proper loading states.
+- Update analytics route map.
+- Update the smallest possible E2E scenario.
+
+### A sample workflow
+
+```md
+## Workflow
+1. Add the route entry and page component
+1. Add route-level metadata
+1. Confirm navigation updates (header/sidebar)
+1. Add an E2E smoke test
+1. Validate `next build` locally
+```
+
+This is boring work. That’s exactly why it makes a good skill.
+
+## How I Made Skills “Believable” to the Codebase
+
+The difference between a skill that helps and a skill that gets ignored is whether it matches how your repo actually behaves.
+
+Here’s what I did that made adoption stick.
+
+### 1) I anchored skills to file paths
+
+Any time a skill says “update the theme,” it should include:
+
+- The exact directory.
+- The likely entrypoint file.
+- The naming conventions.
+
+React codebases are not standardized across teams. You have to point at *your* standards.
+
+### 2) I wrote guardrails as testable statements
+
+Bad guardrail:
+
+- “Be careful about performance.”
+
+Good guardrail:
+
+- “Do not introduce a new client boundary unless the component needs browser APIs.”
+- “If a new dependency is added, include bundle impact in the PR description.”
+
+The goal is to reduce interpretation. Agents and humans both benefit.
+
+### 3) I included “what good looks like” in PRs
+
+I added a PR checklist section to each skill with artifacts reviewers expect:
+
+- Before/after screenshots
+- Profiler evidence
+- A11y notes
+- Links to the relevant docs or ADRs
+
+When an agent can produce those artifacts, reviewers trust the work more.
+
+## A Realistic “Skill Index” for Frontend Teams
+
+If you create 20 skills, nobody knows where to start. We started with 5 and grew them organically:
+
+- Add or update a UI component
+- Add a route/page
+- Fix a performance regression
+- Add a data fetch pattern
+- Write or update tests
+
+Once these exist, you can add narrower skills like:
+
+- “Migrate from deprecated UI component X”
+- “Add a new feature flag”
+- “Update tracking events”
+
+## The Non-Obvious Parts (What I Learned the Hard Way)
+
+### Don’t overfit to a single framework version
+
+React and Next.js move fast. If you hardcode version-specific guidance everywhere, the docs rot.
+
+Instead, I try to document **principles plus one current example**:
+
+- Principle: “Prefer server components for data fetching.”
+- Example: “This route uses a server component with `fetch` caching.”
+
+### Be explicit about what the agent should not do
+
+In a React repo, the most common “AI mistakes” I’ve seen are:
+
+- Creating new components when one already exists.
+- Introducing state libraries or patterns without alignment.
+- Adding dependencies casually.
+- Making everything client-side because it’s simpler.
+
+If you only say what to do, you leave too much surface area.
+
+### Keep skills small, or they won’t be maintained
+
+The fastest way to kill a skill is to make it “the documentation of everything.” A skill should be:
+
+- Small enough to update in 5 minutes.
+- Focused on one workflow.
+- Opinionated.
+
+If it grows beyond that, split it.
+
+## A “Skill” for Creating Skills
+
+Once we proved value, we added a meta-skill to keep quality consistent.
+
+It answers:
+
+- When to create a new skill vs updating an existing one
+- The required sections
+- The minimum verification steps
+- The “bad patterns” we don’t want to repeat
+
+That meta-skill paid off immediately. It prevented low-quality docs from polluting the system.
+
+## A Checklist for Shipping Your First Skill Set
+
+If you want a quick starting point, here’s the rollout I recommend:
+
+- Pick 3 workflows that generate the most review churn.
+- Write one skill per workflow.
+- Add hard guardrails.
+- Add verification commands that match your CI.
+- Use the skill in 2–3 real PRs.
+- Update the skill based on the actual friction you hit.
+
+## Closing Thoughts
+
+The best part of this isn’t “AI.” It’s that skills force clarity. You end up writing down the rules you’ve been enforcing mentally for years, and suddenly everyone can operate with the same map.
+
+If you’re a frontend lead or senior engineer, agent skills are one of the highest leverage documentation formats I’ve found: they reduce repeated review comments, speed up onboarding, and make automation safer.
+
+Next step for me is tying skills to CI checks, so the “guardrails” become enforceable, not just aspirational. But even without that, a good `SKILL.md` is a surprisingly powerful tool.
+
+Treat `SKILL.md` like code. Update it when the architecture changes. Use it in onboarding and code reviews.

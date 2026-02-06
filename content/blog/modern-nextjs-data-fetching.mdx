@@ -1,0 +1,30 @@
+---
+title: "Modern Next.js Data Fetching Strategies in the App Router"
+description: "A map of fetch patterns that balance freshness, caching, and DX in Next.js." 
+date: "2026-01-26"
+tags: ["Next.js", "Data Fetching", "Caching"]
+readingTime: "8 min read"
+draft: false
+---
+
+The App Router gives you a spectrum of data fetching behaviors. The key is to decide **what needs to be fresh** and **what can be cached**.
+
+## Start with static when you can
+
+Static data is free performance. Use `fetch` with `next: { revalidate }` for content that changes occasionally.
+
+## Stream the dynamic parts
+
+For personalized data, isolate it in server components or route handlers that can stream after the shell.
+
+## Cache with intent
+
+Treat caching as a product decision. If data changes hourly, cache it hourly. If it changes per user, don’t cache it globally.
+
+## A typical split
+
+- Global shell: static
+- Content: revalidated
+- Personalized blocks: dynamic
+
+Build a matrix for each page and document the decision. Your future self will thank you.
